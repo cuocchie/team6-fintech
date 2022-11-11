@@ -55,6 +55,7 @@ class BudgetForm(forms.Form):
     amount = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0)
     left = forms.CharField(max_length=32)
     month = forms.DateField()
+    category_type = forms.CharField(max_length=32)
 
     def save(self):
         if self.cleaned_data['budget_id'] == -1:

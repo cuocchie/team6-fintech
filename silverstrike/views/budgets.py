@@ -45,7 +45,9 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
                 'amount': budget.amount,
                 'left': -self.budget_spending.get(budget.category_id, 0) + budget.amount,
                 'month': self.month,
-            })
+                'category_type': budget.category.category_type.name,
+                'category_type_id': budget.category.category_type_id
+                })
 
         ids = [budget.category_id for budget in self.budgets]
         for category in Category.objects.exclude(id__in=ids).exclude(active=False):
@@ -57,7 +59,11 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
                 'amount': 0,
                 'left': -self.budget_spending.get(category.id, 0),
                 'month': self.month,
+                'category_type': category.category_type.name,
+                'category_type_id': category.category_type_id
             })
+
+        initial = sorted(initial, key=lambda d: d['category_type_id'])
         return initial
 
     def get_context_data(self, **kwargs):

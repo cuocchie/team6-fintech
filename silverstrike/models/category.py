@@ -3,12 +3,13 @@ from django.urls import reverse
 
 from .account_type import AccountType
 from .transaction import Split, Transaction
-
+from .category_type import CategoryType
 
 class Category(models.Model):
     name = models.CharField(max_length=64)
     active = models.BooleanField(default=True)
     last_modified = models.DateTimeField(auto_now=True)
+    category_type = models.ForeignKey(CategoryType, models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name_plural = 'categories'
