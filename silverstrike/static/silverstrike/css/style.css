@@ -1,34 +1,66 @@
 #navbar-user {
-    height: unset;
+  height: unset;
 }
 
 .pagination select {
-    display:inline-block;
-    width:120px;
-    border-radius:0;
-    float: left;
-    vertical-align: top;
-    margin-left: -1px;
+  display: inline-block;
+  width: 120px;
+  border-radius: 0;
+  float: left;
+  vertical-align: top;
+  margin-left: -1px;
 }
 
 .flash-message {
-    right: 1rem;
-    margin-top: 1rem;
-    position: absolute;
-    z-index: 10;
+  right: 1rem;
+  margin-top: 1rem;
+  position: absolute;
+  z-index: 10;
 }
 
-.flash-message > .alert {
-    background-color: #323232;
-    color: white;
+.flash-message>.alert {
+  background-color: #323232;
+  color: white;
 }
 
-.flash-message > .alert > button {
-    color: white;
+.flash-message>.alert>button {
+  color: white;
 }
 
 .force-parent-lh {
   line-height: inherit !important;
+}
+
+.list-group {
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.custom-scroll-bar::-webkit-scrollbar {
+  width: 10px;
+  background-color: #F5F5F5;
+  border-radius: 10px;
+}
+
+.custom-scroll-bar::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+	background-color: #3C8DBC;
+}
+
+.custom-scroll-bar::-webkit-scrollbar-track {
+  border-top: 1px;
+  border-bottom: 1px;
+  border-right: 1px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-color: #ddd;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.blue-custom {
+  color: #3c8dbc;
 }
 
 /* fix for adminlte issue https://github.com/almasaeed2010/AdminLTE/issues/1607 */
