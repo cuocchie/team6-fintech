@@ -5,11 +5,12 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.urls import reverse_lazy
+from django.shortcuts import render
 from django.views import generic
 
 from silverstrike.forms import BudgetFormSet
 from silverstrike.lib import last_day_of_month
-from silverstrike.models import Budget, Category, Split
+from silverstrike.models import Budget, Category, Split, CategoryType
 
 
 class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
@@ -82,3 +83,41 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
         for f in form:
             f.save()
         return super(BudgetIndex, self).form_valid(form)
+
+# class CategoryTypeIndex(LoginRequiredMixin, generic.ListView):
+#     template_name = 'silverstrike/test.html'
+#     context_object_name = 'category_type_list'
+#     model = category_type.CategoryType
+
+#     def get_queryset(self):
+#         return category_type.CategoryType.objects.order_by('name')
+
+class IndexView(LoginRequiredMixin, generic.DetailView):
+    template_name = 'silverstrike/test.html'
+    context_object_name = 'category_list'
+    category = Category
+    category_type = CategoryType.objects.get_queryset().get_all()
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        # print([cat.id for cat in self.category_type])
+        for category_type in self.category_type:
+            context[category_type.name] = [category.name for category in Category.objects.get_queryset().get_by_cat_type_id(category_type.id)]
+        return context
+
+class CategoryTypeCreateView(LoginRequiredMixin, generic.edit.CreateView):
+    model = CategoryType
+    fields = ['name']
+    success_url = reverse_lazy('budgets')
+
+
+class CategoryTypeUpdateView(LoginRequiredMixin, generic.edit.UpdateView):
+    model = CategoryType
+    fields = ['name']
+
+    success_url = reverse_lazy('budgets')
+
+
+class CategoryTypeDeleteView(LoginRequiredMixin, generic.edit.DeleteView):
+    model = CategoryType
+    success_url = reverse_lazy('budgets')
