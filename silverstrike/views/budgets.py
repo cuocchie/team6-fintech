@@ -111,6 +111,25 @@ class IndexView(LoginRequiredMixin, generic.ListView):
                 'cat_type': CategoryType.objects.get(id=cat.category_type_id)
             })
         context['list'] = initial
+
+        if 'month' in kwargs:
+            self.month = date(kwargs.pop('year'), kwargs.pop('month'), 1)
+        else:
+            self.month = date.today().replace(day=1)
+
+        self.budgets = Budget.objects.for_month(self.month)
+        budget_spending = Split.objects.personal().past().date_range(
+            self.month, last_day_of_month(self.month)).order_by('category').values(
+                'category', 'category__name').annotate(spent=Sum('amount'))
+
+        context['month'] = self.month
+
+        context['previous_month'] = self.month - relativedelta(months=1)
+        context['next_month'] = self.month + relativedelta(months=1)
+
+        context['allocated'] = sum([x.amount for x in self.budgets])
+        context['spent'] = sum([self.budget_spending.get(x.category_id, 0) for x in self.budgets])
+        context['left'] = context['allocated'] - context['spent']
         return context  
 
 class CategoryTypeCreateView(LoginRequiredMixin, generic.edit.CreateView):
