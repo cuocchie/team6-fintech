@@ -184,9 +184,11 @@
 
   <div>
     <p>yua</p>
-    {% for category_type in object_list %}
-    <p> abc {{ category_type.name }}</p>
+    {% for category in category_list %}
+    <p>{{ category.name }}</p>
     {% endfor %}
+
+    {{ category_list }}
   </div>
   
 </div>

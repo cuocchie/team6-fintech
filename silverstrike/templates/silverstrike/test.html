@@ -19,16 +19,130 @@
     <h3 class="box-title">{% trans 'Categories' %}</h3>
   </div>
   <div class="box-body no-padding">
-    <table class="table table-striped">
-      <tr>
-        <th>{% trans 'Name' %}</th>
-      </tr>
-      {% for category_type in context %}
-      <tr>
-        <th>{{ category_type }}</th>
-      </tr>
-      {% endfor %}
+    <!-- <table class="table table-striped">
 
+      {% regroup list by cat_type as cat_lst %}
+        <ul>
+          {% for cat in cat_lst %}
+          <li>
+            <ul>
+              {% for c in cat.list %}
+              <li>{{ c.cat_name }} {{c.cat_type}}</li>
+              {% endfor %}
+            </ul>
+          </li>
+          {% endfor %}
+        </ul>
       <tr>{{ res_dict}}</tr>
-    </table>
+    </table> -->
+
+    {% regroup list by cat_type as cat_lst %}
+    {% for cat in cat_lst %}
+    <div class="row">
+      <div class="col-xs-4 col lg-4">
+        <div class="div">
+          <div class="d-flex justify-content-start">
+            <div class="row">
+              <div class="col-xs-10 vcenter"><h4>{{cat.grouper}}</h4></div>
+              <div class="col-xs-2 vcenter"><button type="button" class="btn btn-primary pull-right">Add Category</button></div>
+            </div>   
+          </div>
+          <div class="list-group custom-scroll-bar">
+            {% for c in cat.list %}
+            <a class="list-group-item vcenter"> {{ c.cat_name }}
+              <span class="pull-right">
+                <button type="button" class="btn btn-xs btn-light">
+                <span class="glyphicon glyphicon-plus-sign blue-custom" data-toggle="modal" data-target="#exampleModal"></span>
+                </button>
+              </span>
+            </a >
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <!--Modal-->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header d-flex justify-content-between">
+            <span class="modal-title p-2 w-5 h4" id="exampleModalLabel">Modal title</span>
+            <button type="button" class="close p-2" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col col-sm-6">
+                <!-- <div class="font-weight-bold"> -->
+                  <h5>
+                    Spending limit of Month?
+                  </h5>
+                <!-- </div> -->
+                <div>
+                  <h4>
+                    <strong>5000$</strong>
+                  </h4>
+                </div>
+              </div>
+              <div class="col col-sm-3">
+                <h5>Recommended daily spending</h5>
+                <h4>
+                  <strong>375$</strong>
+                </h4>
+              </div>
+              <div class="col col-sm-3">
+                <h5>Actual daily spending</h5>
+                <h4>
+                  <strong>86.96$</strong>
+                </h4>
+              </div>
+            </div>
+    
+            <div class="row">
+              <div class="col col-sm-6">
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col-sm-10 no-padding">
+                        <div class="container-fluid no-padding">
+                            Spend
+                        </div>
+                        <div class="container-fluid no-padding">
+                          <h4>
+                            <strong>200</strong>
+                          </h4>
+                        </div>
+                      </div>
+                      <div class="col-sm-2">
+                        <div class="container-fluid">Left</div>
+                        <div class="container-fluid">
+                          <h4>
+                            <strong>800</strong>
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="progress progress-custom">
+                        <div class="progress-bar progress-bar-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+    
+              <div>
+                <canvas id="myChart" width="450" height="250"></canvas>
+              </div>
+    
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}

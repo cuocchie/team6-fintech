@@ -1,11 +1,12 @@
 from datetime import date
+from itertools import groupby
 
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.urls import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import generic
 
 from silverstrike.forms import BudgetFormSet
@@ -92,18 +93,25 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
 #     def get_queryset(self):
 #         return category_type.CategoryType.objects.order_by('name')
 
-class IndexView(LoginRequiredMixin, generic.DetailView):
+class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = 'silverstrike/test.html'
+    model = Category
     context_object_name = 'category_list'
-    category = Category
-    category_type = CategoryType.objects.get_queryset().get_all()
+    # queryset = CategoryType.objects.all()
+    queryset = Category.objects.order_by('category_type_id')
 
-    def get_queryset(self):
-        context = {}
-        # print([cat.id for cat in self.category_type])
-        for category_type in self.category_type:
-            context[category_type.name] = [category.name for category in Category.objects.get_queryset().get_by_cat_type_id(category_type.id)]
-        return Category.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        # context['category_type_list'] =  CategoryType.objects.order_by('id')
+        initial = []
+        for cat in Category.objects.order_by('category_type_id'):
+            initial.append({
+                'cat_name': cat.name,
+                'cat_type': CategoryType.objects.get(id=cat.category_type_id)
+            })
+        context['list'] = initial
+        return context  
 
 class CategoryTypeCreateView(LoginRequiredMixin, generic.edit.CreateView):
     model = CategoryType
