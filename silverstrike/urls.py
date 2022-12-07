@@ -25,7 +25,7 @@ router.register(r'recurrences', rest_views.RecurringTransactionsViewset)
 
 urlpatterns = [
     path('', general_views.IndexView.as_view(), name='index'),
-    path('test/', budget_views.IndexView.as_view(), name='buget_index'), 
+    path('test/<int:pk>/', budget_views.IndexView.as_view(), name='buget_index'), 
     path('profile/', general_views.ProfileView.as_view(), name='profile'),
 
     path('auth/', include('allauth.urls')),

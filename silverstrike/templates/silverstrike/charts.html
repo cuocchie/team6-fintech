@@ -121,6 +121,50 @@ var drawChart = function(res) {
 };
 var drawBalances = function(res) {
   var ctx = document.getElementById("balanceChart").getContext('2d');
+
+
+  var horizonalLinePlugin = {
+  afterDraw: function(chartInstance) {
+    var yScale = chartInstance.scales["y-axis-0"];
+    var canvas = chartInstance.chart;
+    var ctx = canvas.ctx;
+    var index;
+    var line;
+    var style;
+    if (chartInstance.options.horizontalLine) {
+      for (index = 0; index < chartInstance.options.horizontalLine.length; index++) {
+        line = chartInstance.options.horizontalLine[index];
+        if (!line.style) {
+          style = "rgba(169,169,169, .6)";
+        } else {
+          style = line.style;
+        }
+        if (line.y) {
+          yValue = yScale.getPixelForValue(line.y);
+        } else {
+          yValue = 0;
+        }
+        ctx.lineWidth = 3;
+        if (yValue) {
+          ctx.beginPath();
+          ctx.moveTo(0, yValue);
+          ctx.lineTo(canvas.width, yValue);
+          ctx.strokeStyle = style;
+          ctx.stroke();
+        }
+        if (line.text) {
+          ctx.fillStyle = style;
+          ctx.fillText(line.text, 0, yValue + ctx.lineWidth);
+        }
+      }
+      return;
+    };
+  }
+};
+Chart.pluginService.register(horizonalLinePlugin);
+
+
+
   var data = {
       labels: res.labels,
       datasets: []
@@ -128,12 +172,31 @@ var drawBalances = function(res) {
   var dataset = {
     label: 'Balance',
     fill: false,
-    pointRadius: 2,
+    tension: 0.1,
     backgroundColor: '#357ca5',
     borderColor: '#357ca5',
-    data: res.data
+    data: res.datafront
   };
   data.datasets.push(dataset);
+  var dataset = {
+    label: 'Linear Regressor Predictor',
+    fill: false,
+    tension: 0.1,
+    backgroundColor: '#228B22',
+    borderColor: '#228B22',
+    data: res.databack
+  };
+  data.datasets.push(dataset);
+  var dataset = {
+    label: 'Time Series Predictor',
+    fill: false,
+    tension: 0.1,
+    backgroundColor: '#FFD700',
+    borderColor: '#FFD700',
+    data: res.databack2
+  };
+  data.datasets.push(dataset);
+
   balanceChart = new Chart(ctx, {
       type: 'line',
       data: data,
@@ -153,7 +216,12 @@ var drawBalances = function(res) {
                       beginAtZero: true
                   }
               }]
-          }
+          },
+          "horizontalLine": [{
+              "y": 3000,
+              "style": "rgba(255, 0, 0, .3)",
+          }]
+
       }
   });
 };

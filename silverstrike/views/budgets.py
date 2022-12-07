@@ -98,12 +98,12 @@ class IndexView(LoginRequiredMixin, generic.DetailView):
     category = Category
     category_type = CategoryType.objects.get_queryset().get_all()
 
-    def get_context_data(self, **kwargs):
+    def get_queryset(self):
         context = {}
         # print([cat.id for cat in self.category_type])
         for category_type in self.category_type:
             context[category_type.name] = [category.name for category in Category.objects.get_queryset().get_by_cat_type_id(category_type.id)]
-        return context
+        return Category.objects.all()
 
 class CategoryTypeCreateView(LoginRequiredMixin, generic.edit.CreateView):
     model = CategoryType

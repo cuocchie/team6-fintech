@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
 from .models import Account, AccountType, Split
-
+from .ml import finance_predictor
+from .models import Account, AccountType, Split
 
 @login_required
 def get_accounts(request, account_type):
@@ -56,25 +57,32 @@ def get_balances(request, dstart, dend):
         dend = datetime.datetime.strptime(dend, '%Y-%m-%d').date()
     except ValueError:
         return HttpResponseBadRequest(_('Invalid date format, expected yyyy-mm-dd'))
-    balance = Split.objects.personal().exclude_transfers().filter(date__lt=dstart).aggregate(
-            models.Sum('amount'))['amount__sum'] or 0
-    splits = Split.objects.personal().exclude_transfers().date_range(dstart, dend).order_by('date')
-    data_points = []
-    labels = []
-    days = (dend - dstart).days
-    if days > 50:
-        step = days / 50 + 1
-    else:
-        step = 1
-    for split in splits:
-        while split.date > dstart:
-            data_points.append(balance)
-            labels.append(datetime.datetime.strftime(dstart, '%Y-%m-%d'))
-            dstart += datetime.timedelta(days=step)
-        balance += split.amount
-    data_points.append(balance)
-    labels.append(datetime.datetime.strftime(dend, '%Y-%m-%d'))
-    return JsonResponse({'labels': labels, 'data': data_points})
+    # balance = Split.objects.personal().exclude_transfers().filter(date__lt=dstart).aggregate(
+    #         models.Sum('amount'))['amount__sum'] or 0
+    # splits = Split.objects.personal().exclude_transfers().date_range(dstart, dend).order_by('date')
+    # data_points = []
+    # labels = []
+    # days = (dend - dstart).days
+    # if days > 50:
+    #     step = days / 50 + 1
+    # else:
+    #     step = 1
+    # for split in splits:
+    #     while split.date > dstart:
+    #         data_points.append(balance)
+    #         labels.append(datetime.datetime.strftime(dstart, '%Y-%m-%d'))
+    #         dstart += datetime.timedelta(days=step)
+    #     balance += split.amount
+    # data_points.append(balance)
+    # labels.append(datetime.datetime.strftime(dend, '%Y-%m-%d'))
+
+    datatest = finance_predictor.process_file()
+    # datatest = {
+    #     'labels': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+    #     'datafront': [1, 2, 3, 4, 5, 6, 7],
+    #     'databack': [None, None, None, None, None, None, 7, 8, 9, 10, 11, 12, 13, 14]
+    # }
+    return JsonResponse(datatest)
 
 
 @login_required
