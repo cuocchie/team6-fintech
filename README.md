@@ -11,5 +11,3 @@ python setup.py develop
 ```
 
 - Delete folder `src/silverstrike`
-
-- Test git.
