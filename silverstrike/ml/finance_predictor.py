@@ -1,7 +1,7 @@
 import sys
 import time
 from pathlib import Path
-
+import requests
 import itertools
 import json
 from pandas import json_normalize
@@ -16,38 +16,48 @@ from .tseries import TimeSeriesRegressor, time_series_split
 # from feature_engineering.csv_handler import csv_to_formatted_dataframe
 # from graphing.graphing import plot_predictions
 
-json_test = '''
-{
-"data":
-         [
-         { "Date": "2022-10-01", "Net Worth": 0},
-         { "Date": "2022-10-02", "Net Worth": 217.69},
-         { "Date": "2022-10-03", "Net Worth": 211.69},
-         { "Date": "2022-10-04", "Net Worth": 208.71},
-         { "Date": "2022-10-05", "Net Worth": 2547.51},
-         { "Date": "2022-10-06", "Net Worth": 3012.04},
-         { "Date": "2022-10-07", "Net Worth": 3006.71},
-         { "Date": "2022-10-08", "Net Worth": 3003.73},
-         { "Date": "2022-10-09", "Net Worth": 3002.23},
-         { "Date": "2022-10-10", "Net Worth": 2990.73},
-         { "Date": "2022-10-11", "Net Worth": 3089.08},
-         { "Date": "2022-10-12", "Net Worth": 3091.19},
-         { "Date": "2022-10-13", "Net Worth": 3555.71},
-         { "Date": "2022-10-14", "Net Worth": 3457.36},
-         { "Date": "2022-10-15", "Net Worth": 3458.88},
-         { "Date": "2022-10-16", "Net Worth": 3430.63},
-         { "Date": "2022-10-17", "Net Worth": 3422.55},
-         { "Date": "2022-10-18", "Net Worth": 3432.69},
-         { "Date": "2022-10-19", "Net Worth": 2706.74},
-         { "Date": "2022-10-20", "Net Worth": 3333.81},
-         { "Date": "2022-10-21", "Net Worth": 2712.69}
-         ]
-}
-'''
+json_test = [{"amount": "10000.00","month": "2022-11-01"},{"amount": "2000.00","month": "2022-11-01" \
+}, \
+{\
+"amount": "5000.00",\
+"month": "2022-11-01"\
+},\
+{\
+    "amount": "6000.00",\
+    "month": "2022-11-01"\
+},\
+{\
+    "amount": "7000.00",\
+    "month": "2022-11-01"\
+},\
+{\
+    "amount": "4000.00",\
+    "month": "2022-11-01"\
+}\
+]\
+
+json_test = [\
+    {\
+        "date": "2022-12-07",\
+        "Networth": 6020.0\
+    },\
+    {\
+        "date": "2022-12-09",\
+        "Networth": 10300.0\
+    }\
+]\
 
 def convert_json_to_dataframe():
-    dict = json.loads(json_test)
-    df2 = json_normalize(dict['data'])
+    s = requests.Session()
+
+    url = "http://localhost:8000/api"
+    result = s.get(url, auth=('cuocchie@gmail.com','banmai111'))
+
+    print(result.json())
+    # dict = json.loads(result)
+    
+    df2 = json_normalize(result.json())
+    # df2 = json_normalize(json_test)
     return df2
 
 def run_linear_regression(X, y, datelist):
@@ -166,17 +176,17 @@ def process_file():
 
     # print(dataframe)
     # Grab graphing data
-    X = dataframe["Date"].values
+    X = dataframe["date"].values
     # print(X)
     X = numpy.array(X, dtype='datetime64[ns]')
-    y = dataframe["Net Worth"]
+    y = dataframe["Networth"]
     # print(type(X[0]))
     # print(type(y[0]))
 
     # Create a list of dates with a 30-day interval
     datelist = numpy.arange(
         str(X[-1]),
-        '2022-11-01T00:00:00.0000000',
+        '2023-01-01T00:00:00.0000000',
         numpy.timedelta64(int(24), 'h'),
         dtype='datetime64'
     )
@@ -204,7 +214,7 @@ def process_file():
     # print(datelabel)
     # print(len(X))
     dele = len(X)
-    datafront = dataframe["Net Worth"].values.tolist()
+    datafront = dataframe["Networth"].values.tolist()
     # print(datafront)
     # print(ts_y)
     databack = lr_y_all.tolist()

@@ -1,5 +1,5 @@
-from datetime import date
-from itertools import groupby
+from datetime import date, datetime
+from calendar import monthrange
 
 from dateutil.relativedelta import relativedelta
 
@@ -11,8 +11,13 @@ from django.views import generic
 
 from silverstrike.forms import BudgetFormSet
 from silverstrike.lib import last_day_of_month
-from silverstrike.models import Budget, Category, Split, CategoryType
+from silverstrike.models import Budget, Category, Split, CategoryType, Transaction
+from silverstrike.views.serializers import BudgetSerializer
 
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework import permissions
 
 class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
     template_name = 'silverstrike/budget_index.html'
@@ -104,16 +109,6 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         
         context = super(IndexView, self).get_context_data(**kwargs)
-        # context['category_type_list'] =  CategoryType.objects.order_by('id')
-        initial = []
-        for cat in Category.objects.order_by('category_type_id'):
-            initial.append({
-                'cat_id': cat.id,
-                'cat_name': cat.name,
-                'cat_type': CategoryType.objects.get(id=cat.category_type_id)
-            })
-        context['list'] = initial
-
         if 'month' in kwargs:
             self.month = date(kwargs.pop('year'), kwargs.pop('month'), 1)
         else:
@@ -131,6 +126,46 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         context['allocated'] = sum([x.amount for x in self.budgets])
         context['spent'] = sum([self.budget_spending.get(x.category_id, 0) for x in self.budgets])
         context['left'] = context['allocated'] - context['spent']
+        
+        initial = []
+        for cat in Category.objects.order_by('category_type_id'):
+            try:
+                budget_amount = Budget.objects.get(category_id=cat.id).amount
+            except Budget.DoesNotExist:
+                budget_amount = 0
+            
+            (_, day) = monthrange(self.month.year, self.month.month)
+            remained_day = day - datetime.now().day
+            recommend_spending = int(budget_amount/remained_day)
+
+            try:
+                spent = self.budget_spending.get(category_id=cat.id)['spent']
+            except Exception:
+                spent = 0
+
+            left = budget_amount - abs(spent)
+            if left < 0: left = 0
+
+            if budget_amount == 0:
+                percent = 0
+            else:
+                percent = 100 - int((left/budget_amount)*100)
+            print(cat.name, percent)
+
+            initial.append({
+                'cat_id': cat.id,
+                'cat_name': cat.name,
+                'cat_type': CategoryType.objects.get(id=cat.category_type_id),
+                'budget_amount': budget_amount,
+                'recommend_spend': recommend_spending,
+                'spent': abs(spent),
+                'daily_spent': int(abs(spent)/datetime.now().day),
+                'left': left,
+                'percent': percent
+            })
+            
+        context['list'] = initial
+
         return context  
 
 class CategoryTypeCreateView(LoginRequiredMixin, generic.edit.CreateView):
@@ -149,3 +184,10 @@ class CategoryTypeUpdateView(LoginRequiredMixin, generic.edit.UpdateView):
 class CategoryTypeDeleteView(LoginRequiredMixin, generic.edit.DeleteView):
     model = CategoryType
     success_url = reverse_lazy('budgets')
+
+class BudgetListApiView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        trans = Transaction.objects.all()
+        result = Transaction.objects.values('date').annotate(Networth=Sum('amount')).order_by("date")
+        return Response(result, status=status.HTTP_200_OK)
