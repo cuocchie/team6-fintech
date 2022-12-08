@@ -102,11 +102,13 @@ class IndexView(LoginRequiredMixin, generic.ListView):
 
 
     def get_context_data(self, **kwargs):
+        
         context = super(IndexView, self).get_context_data(**kwargs)
         # context['category_type_list'] =  CategoryType.objects.order_by('id')
         initial = []
         for cat in Category.objects.order_by('category_type_id'):
             initial.append({
+                'cat_id': cat.id,
                 'cat_name': cat.name,
                 'cat_type': CategoryType.objects.get(id=cat.category_type_id)
             })
@@ -117,13 +119,12 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         else:
             self.month = date.today().replace(day=1)
 
-        self.budgets = Budget.objects.for_month(self.month)
-        budget_spending = Split.objects.personal().past().date_range(
+        self.budget_spending = Split.objects.personal().past().date_range(
             self.month, last_day_of_month(self.month)).order_by('category').values(
                 'category', 'category__name').annotate(spent=Sum('amount'))
 
         context['month'] = self.month
-
+        self.budgets = Budget.objects.for_month(self.month)
         context['previous_month'] = self.month - relativedelta(months=1)
         context['next_month'] = self.month + relativedelta(months=1)
 
