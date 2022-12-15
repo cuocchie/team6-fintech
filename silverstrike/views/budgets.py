@@ -35,7 +35,7 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
     def get_initial(self):
         # assigned categories
         self.budgets = Budget.objects.for_month(self.month)
-        budget_spending = Split.objects.personal().past().date_range(
+        budget_spending = Split.objects.personal().past().date_range( 
             self.month, last_day_of_month(self.month)).order_by('category').values(
                 'category', 'category__name').annotate(spent=Sum('amount'))
 
@@ -90,21 +90,13 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
             f.save()
         return super(BudgetIndex, self).form_valid(form)
 
-# class CategoryTypeIndex(LoginRequiredMixin, generic.ListView):
-#     template_name = 'silverstrike/test.html'
-#     context_object_name = 'category_type_list'
-#     model = category_type.CategoryType
-
-#     def get_queryset(self):
-#         return category_type.CategoryType.objects.order_by('name')
-
-class IndexView(LoginRequiredMixin, generic.ListView):
+class IndexView(LoginRequiredMixin, generic.edit.FormView):
     template_name = 'silverstrike/test.html'
-    model = Category
     context_object_name = 'category_list'
-    # queryset = CategoryType.objects.all()
-    queryset = Category.objects.order_by('category_type_id')
+    success_url = reverse_lazy('budgets')
+    form_class = BudgetFormSet
 
+    model = Category
 
     def get_context_data(self, **kwargs):
         
@@ -150,7 +142,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
                 percent = 0
             else:
                 percent = 100 - int((left/budget_amount)*100)
-            print(cat.name, percent)
+            # print(cat.name, percent, spent)
 
             initial.append({
                 'cat_id': cat.id,
@@ -168,22 +160,12 @@ class IndexView(LoginRequiredMixin, generic.ListView):
 
         return context  
 
-class CategoryTypeCreateView(LoginRequiredMixin, generic.edit.CreateView):
-    model = CategoryType
-    fields = ['name']
-    success_url = reverse_lazy('budgets')
-
-
-class CategoryTypeUpdateView(LoginRequiredMixin, generic.edit.UpdateView):
-    model = CategoryType
-    fields = ['name']
-
-    success_url = reverse_lazy('budgets')
-
-
-class CategoryTypeDeleteView(LoginRequiredMixin, generic.edit.DeleteView):
-    model = CategoryType
-    success_url = reverse_lazy('budgets')
+    def form_valid(self, form):
+        print(form)
+        # for f in form:
+        #     print(f)
+        #     f.save()
+        return super(IndexView, self).form_valid(form)
 
 class BudgetListApiView(APIView):
 
