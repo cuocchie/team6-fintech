@@ -16,36 +16,6 @@ from .tseries import TimeSeriesRegressor, time_series_split
 # from feature_engineering.csv_handler import csv_to_formatted_dataframe
 # from graphing.graphing import plot_predictions
 
-json_test = [{"amount": "10000.00","month": "2022-11-01"},{"amount": "2000.00","month": "2022-11-01" \
-}, \
-{\
-"amount": "5000.00",\
-"month": "2022-11-01"\
-},\
-{\
-    "amount": "6000.00",\
-    "month": "2022-11-01"\
-},\
-{\
-    "amount": "7000.00",\
-    "month": "2022-11-01"\
-},\
-{\
-    "amount": "4000.00",\
-    "month": "2022-11-01"\
-}\
-]\
-
-json_test = [\
-    {\
-        "date": "2022-12-07",\
-        "Networth": 6020.0\
-    },\
-    {\
-        "date": "2022-12-09",\
-        "Networth": 10300.0\
-    }\
-]\
 
 def convert_json_to_dataframe():
     s = requests.Session()
@@ -57,7 +27,6 @@ def convert_json_to_dataframe():
     # dict = json.loads(result)
     
     df2 = json_normalize(result.json())
-    # df2 = json_normalize(json_test)
     return df2
 
 def run_linear_regression(X, y, datelist):
@@ -224,6 +193,11 @@ def process_file():
         databack2[z] = None
     databack[dele-1] = datafront[dele-1]
     databack2[dele - 1] = datafront[dele - 1]
+    for k in range(dele, len(databack)):
+        if databack[k] < 0:
+            databack[k] = 0
+        if databack2[k] < 0:
+            databack2[k] = 0
     datatest = {
         'labels': datelabel,
         'datafront': datafront,
