@@ -59,6 +59,11 @@
   background-color: white;
 }
 
+.no-margin {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .blue-custom {
   color: #3c8dbc;
 }

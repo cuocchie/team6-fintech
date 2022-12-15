@@ -82,88 +82,96 @@
   {% for c in cat.list %}
 <div class="modal fade" id="exampleModal{{forloop.counter0}}{{forloop.parentloop.counter0}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header d-flex justify-content-between">
-        <span class="modal-title p-2 w-5 h4" id="exampleModalLabel">{{c.cat_name}}</span>
-        <button type="button" class="close p-2" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col col-sm-6">
-            <!-- <div class="font-weight-bold"> -->
-              <h5>
-                Spending limit of {{ month|date:'F Y'}}
-              </h5>
-            <!-- </div> -->
-            <div>
+    <form role="form" method="post">
+      {% csrf_token %}
+      {{ form.management_form }}
+        <div class="modal-content">
+          <div class="modal-header d-flex justify-content-between">
+            <span class="modal-title p-2 w-5 h4" id="exampleModalLabel">{{c.cat_name}}</span>
+            <button type="button" class="close p-2" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col col-sm-6">
+              <!-- <div class="font-weight-bold"> -->
+                <h5>
+                  Spending limit of {{ month|date:'F Y'}}
+                </h5>
+              <!-- </div> -->
+              <div class="row parent">
+                <!-- <input type="text" name="budget" id="budget_amount" defaultValue="1000"> -->
+                <h4 class="col col-sm-2 no-margin child">
+                  <strong>{{c.budget_amount}}$</strong>
+                </h4>
+                <div class="col col-sm-3"><a class="change-button" href="#"><img src="../static/silverstrike/img/edit.png" class="img-thumbnail" alt="Image"></a></div>
+              </div>
+            </div>
+            <div class="col col-sm-3">
+              <h5>Recommended daily spending</h5>
               <h4>
-                <strong>{{c.budget_amount}}$</strong>
+                <strong>{{c.recommend_spend}}$</strong>
+              </h4>
+            </div>
+            <div class="col col-sm-3">
+              <h5>Actual daily spending</h5>
+              <h4>
+                <strong>{{c.daily_spent}}$</strong>
               </h4>
             </div>
           </div>
-          <div class="col col-sm-3">
-            <h5>Recommended daily spending</h5>
-            <h4>
-              <strong>{{c.recommend_spend}}</strong>
-            </h4>
-          </div>
-          <div class="col col-sm-3">
-            <h5>Actual daily spending</h5>
-            <h4>
-              <strong>{{c.daily_spent}}$</strong>
-            </h4>
-          </div>
-        </div>
 
-        <div class="row">
-          <div class="col col-sm-6">
-              <div class="container-fluid">
-                <div class="row">
-                  <div class="col-sm-10 no-padding">
-                    <div class="container-fluid no-padding">
-                        Spend
+          <div class="row">
+            <div class="col col-sm-6">
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-sm-10 no-padding">
+                      <div class="container-fluid no-padding">
+                          Spent
+                      </div>
+                      <div class="container-fluid no-padding">
+                        <h4>
+                          <strong>{{c.spent}}$</strong>
+                        </h4>
+                      </div>
                     </div>
-                    <div class="container-fluid no-padding">
-                      <h4>
-                        <strong>{{c.spent}}$</strong>
-                      </h4>
+                    <div class="col-sm-2">
+                      <div class="container-fluid">Left</div>
+                      <div class="container-fluid">
+                        <h4>
+                          <strong>{{c.left}}$</strong>
+                        </h4>
+                      </div>
                     </div>
                   </div>
-                  <div class="col-sm-2">
-                    <div class="container-fluid">Left</div>
-                    <div class="container-fluid">
-                      <h4>
-                        <strong>{{c.left}}</strong>
-                      </h4>
+                  <div class="row">
+                    <div class="progress progress-custom">
+                      {% if c.percent >= 0 and c.percent <= 50 %}
+                      <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                      {% elif c.percent > 50 and c.percent < 100 %}
+                      <div class="progress-bar progress-bar-warning" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                      {% else %}
+                      <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                      {% endif %}
                     </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="progress progress-custom">
-                    {% if c.percent < 60 %}
-                    <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                    {% else %}
-                    <div class="progress-bar progress-bar-warning" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                    {% endif %}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div>
-            <canvas id="myChart" width="450" height="250"></canvas>
-          </div>
+            <div>
+              <canvas id="myChart" width="450" height="250"></canvas>
+            </div>
 
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+          </div>
         </div>
       </div>
-    </div>
+    </form>
   </div>
 </div>
   {% endfor %}
@@ -175,6 +183,47 @@
 {% block scripts %}
 <script src="{% static 'vendor/js/Chart.bundle.min.js' %}"></script>
 <script type="text/javascript">
+
+const button = document.querySelector('.change-button');
+var parent = document.querySelector('.parent');
+var old_child_element = document.querySelector('.child');
+var val = old_child_element.children[0].textContent;
+
+var input_status = false;
+
+var new_element = document.createElement('input');
+new_element.setAttribute("type", "text");
+new_element.classList.add("col", "col-sm-3");
+new_element.style.marginLeft = "20px";
+new_element.value = val.replace('$', '');
+
+button.addEventListener('click', (event_input) => {
+  parent.removeChild(parent.children[0]);
+  parent.prepend(new_element);
+  // input_status = true
+  new_element.focus();
+  new_element.select();
+});
+
+document.addEventListener('click', (event) => {
+  if (!button.contains(event.target)) {
+    input_status = false;
+    if (parent.children[0].value != undefined) {
+      old_child_element.children[0].textContent = parent.children[0].value + '$';
+      parent.removeChild(parent.children[0]);
+      parent.prepend(old_child_element);  
+    }    
+  }
+});
+
+document.addEventListener('keypress', function (event) {
+  if (event.key == "Enter" && parent.children[0] == new_element) {
+    old_child_element.children[0].textContent = parent.children[0].value + '$';
+    parent.removeChild(parent.children[0]);
+    parent.prepend(old_child_element); 
+  }
+})
+
 var drawChart = function(res) {
   var ctx = document.getElementById("myChart").getContext('2d');
 
