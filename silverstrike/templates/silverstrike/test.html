@@ -17,9 +17,9 @@
 <div class="box">
   <div class="box-body">
     <div class="text-center">
-      <a href="{% url 'budget_month' previous_month.year previous_month.month %}" class="btn btn-xs btn-default">{% trans 'Previous' %}</a>
+      {% comment %} <a href="{% url 'budget_month' previous_month.year previous_month.month %}" class="btn btn-xs btn-default">{% trans 'Previous' %}</a> {% endcomment %}
       <span>{{ month|date:'F Y'}}</span>
-      <a href="{% url 'budget_month' next_month.year next_month.month %}" class="btn btn-xs btn-default">{% trans 'Next' %}</a>
+      {% comment %} <a href="{% url 'budget_month' next_month.year next_month.month %}" class="btn btn-xs btn-default">{% trans 'Next' %}</a> {% endcomment %}
     </div>
   </div>
 </div>
@@ -105,7 +105,7 @@
                 <h4 class="col col-sm-2 no-margin child">
                   <strong>{{c.budget_amount}}$</strong>
                 </h4>
-                <div class="col col-sm-3"><a class="change-button" href="#"><img src="../static/silverstrike/img/edit.png" class="img-thumbnail" alt="Image"></a></div>
+                <div class="col col-sm-3"><a class="change-button" href="{% url 'budget_create' c.budget_id %}"><img src="../static/silverstrike/img/edit.png" class="img-thumbnail" alt="Image"></a></div>
               </div>
             </div>
             <div class="col col-sm-3">
@@ -167,7 +167,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+            <button type="submit" class="btn btn-primary" data-dismiss="modal">{% trans 'Save changes' %}</button>
           </div>
         </div>
       </div>
@@ -184,45 +184,45 @@
 <script src="{% static 'vendor/js/Chart.bundle.min.js' %}"></script>
 <script type="text/javascript">
 
-const button = document.querySelector('.change-button');
-var parent = document.querySelector('.parent');
-var old_child_element = document.querySelector('.child');
-var val = old_child_element.children[0].textContent;
+// const button = document.querySelector('.change-button');
+// var parent = document.querySelector('.parent');
+// var old_child_element = document.querySelector('.child');
+// var val = old_child_element.children[0].textContent;
 
-var input_status = false;
+// var input_status = false;
 
-var new_element = document.createElement('input');
-new_element.setAttribute("type", "text");
-new_element.classList.add("col", "col-sm-3");
-new_element.style.marginLeft = "20px";
-new_element.value = val.replace('$', '');
+// var new_element = document.createElement('input');
+// new_element.setAttribute("type", "text");
+// new_element.classList.add("col", "col-sm-3");
+// new_element.style.marginLeft = "20px";
+// new_element.value = val.replace('$', '');
 
-button.addEventListener('click', (event_input) => {
-  parent.removeChild(parent.children[0]);
-  parent.prepend(new_element);
-  // input_status = true
-  new_element.focus();
-  new_element.select();
-});
+// button.addEventListener('click', (event_input) => {
+//   parent.removeChild(parent.children[0]);
+//   parent.prepend(new_element);
+//   // input_status = true
+//   new_element.focus();
+//   new_element.select();
+// });
 
-document.addEventListener('click', (event) => {
-  if (!button.contains(event.target)) {
-    input_status = false;
-    if (parent.children[0].value != undefined) {
-      old_child_element.children[0].textContent = parent.children[0].value + '$';
-      parent.removeChild(parent.children[0]);
-      parent.prepend(old_child_element);  
-    }    
-  }
-});
+// document.addEventListener('click', (event) => {
+//   if (!button.contains(event.target)) {
+//     input_status = false;
+//     if (parent.children[0].value != undefined) {
+//       old_child_element.children[0].textContent = parent.children[0].value + '$';
+//       parent.removeChild(parent.children[0]);
+//       parent.prepend(old_child_element);  
+//     }    
+//   }
+// });
 
-document.addEventListener('keypress', function (event) {
-  if (event.key == "Enter" && parent.children[0] == new_element) {
-    old_child_element.children[0].textContent = parent.children[0].value + '$';
-    parent.removeChild(parent.children[0]);
-    parent.prepend(old_child_element); 
-  }
-})
+// document.addEventListener('keypress', function (event) {
+//   if (event.key == "Enter" && parent.children[0] == new_element) {
+//     old_child_element.children[0].textContent = parent.children[0].value + '$';
+//     parent.removeChild(parent.children[0]);
+//     parent.prepend(old_child_element); 
+//   {"}"}
+// }}
 
 var drawChart = function(res) {
   var ctx = document.getElementById("myChart").getContext('2d');
@@ -331,6 +331,7 @@ Chart.pluginService.register(horizonalLinePlugin);
   });
 };
 $.getJSON("{% url 'api_balance' '2022-11-01' '2022-11-31' %}", {}, function(res, status) {
+  console.log(res);
   drawChart(res);
 });
 </script>

@@ -50,12 +50,12 @@ class AccountCreateForm(forms.ModelForm):
 class BudgetForm(forms.Form):
     budget_id = forms.IntegerField()
     category_id = forms.IntegerField()
-    category_name = forms.CharField(max_length=64)
-    spent = forms.CharField(max_length=32)
+    # category_name = forms.CharField(max_length=64)
+    # spent = forms.CharField(max_length=32)
     amount = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0)
-    left = forms.CharField(max_length=32)
-    month = forms.DateField()
-    category_type = forms.CharField(max_length=32)
+    # left = forms.CharField(max_length=32)
+    # month = forms.DateField()
+    # category_type = forms.CharField(max_length=32)
 
     def save(self):
         if self.cleaned_data['budget_id'] == -1:
@@ -71,6 +71,7 @@ class BudgetForm(forms.Form):
             })
         else:
             models.Budget.objects.get(id=self.cleaned_data['budget_id']).delete()
+        print(self.cleaned_data)
 
 
 BudgetFormSet = forms.formset_factory(BudgetForm, extra=0)
