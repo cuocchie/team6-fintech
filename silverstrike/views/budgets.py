@@ -5,11 +5,11 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 
-from silverstrike.forms import BudgetFormSet
+from silverstrike.forms import BudgetForm, BudgetFormSet
 from silverstrike.lib import last_day_of_month
 from silverstrike.models import Budget, Category, Split, CategoryType, Transaction
 from silverstrike.views.serializers import BudgetSerializer
@@ -83,6 +83,7 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
         context['allocated'] = sum([x.amount for x in self.budgets])
         context['spent'] = sum([self.budget_spending.get(x.category_id, 0) for x in self.budgets])
         context['left'] = context['allocated'] - context['spent']
+        print(context['form'])
         return context
 
     def form_valid(self, form):
@@ -90,16 +91,14 @@ class BudgetIndex(LoginRequiredMixin, generic.edit.FormView):
             f.save()
         return super(BudgetIndex, self).form_valid(form)
 
-class IndexView(LoginRequiredMixin, generic.edit.FormView):
+class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = 'silverstrike/test.html'
-    context_object_name = 'category_list'
-    success_url = reverse_lazy('budgets')
+    success_url = reverse_lazy('budget_index')
     form_class = BudgetFormSet
 
     model = Category
 
     def get_context_data(self, **kwargs):
-        
         context = super(IndexView, self).get_context_data(**kwargs)
         if 'month' in kwargs:
             self.month = date(kwargs.pop('year'), kwargs.pop('month'), 1)
@@ -143,6 +142,10 @@ class IndexView(LoginRequiredMixin, generic.edit.FormView):
             else:
                 percent = 100 - int((left/budget_amount)*100)
             # print(cat.name, percent, spent)
+            try:
+                budget_id = Budget.objects.get(category_id=cat.id).id
+            except:
+                budget_id = 0
 
             initial.append({
                 'cat_id': cat.id,
@@ -153,23 +156,36 @@ class IndexView(LoginRequiredMixin, generic.edit.FormView):
                 'spent': abs(spent),
                 'daily_spent': int(abs(spent)/datetime.now().day),
                 'left': left,
-                'percent': percent
+                'percent': percent,
+                'budget_id': budget_id
             })
             
         context['list'] = initial
+        # print(context['form'])
 
         return context  
 
-    def form_valid(self, form):
-        print(form)
-        # for f in form:
-        #     print(f)
-        #     f.save()
-        return super(IndexView, self).form_valid(form)
+
+class BudgetUpdateView(LoginRequiredMixin, generic.edit.UpdateView):
+    model = Budget
+    fields = ['amount']
+
+    def get_context_data(self, **kwargs):
+        context = super(generic.edit.UpdateView, self).get_context_data(**kwargs)
+        context['name'] = Category.objects.get(id=context['budget'].category_id).name
+        print(context)
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('budget_index')
 
 class BudgetListApiView(APIView):
 
-    def get(self, request, *args, **kwargs):
-        trans = Transaction.objects.all()
-        result = Transaction.objects.values('date').annotate(Networth=Sum('amount')).order_by("date")
+    def get(self, request):
+        trans = Split.objects.all()
+        result = trans.values('category',"date").annotate(Sum=Sum('amount')).order_by('category')
+        category = Category.objects.all()
+        # result2 = category.values("splits")
+        
+        
         return Response(result, status=status.HTTP_200_OK)
