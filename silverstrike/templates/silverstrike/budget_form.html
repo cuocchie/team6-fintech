@@ -56,9 +56,9 @@
     <div class="box-footer">
       <div class="col-sm-offset-2">
         {% if object %}
-        <a href="{{ category.get_absolute_url }}" class="btn btn-default">{% trans 'Cancel' %}</a>
+        <a href="{% url 'budget_index' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
         {% else %}
-        <a href="{% url 'categories' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
+        <a href="{% url 'budget_index' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
         {% endif %}
         <button type="submit" class="btn btn-primary">{% if object %}{% trans 'Update' %}{% else %}{% trans 'Create' %}{% endif %}</button>
       </div>

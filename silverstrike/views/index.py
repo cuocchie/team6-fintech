@@ -2,9 +2,13 @@ from datetime import date, timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models
+from django.db.models import Sum
 from django.views import generic
 
 from rest_framework.authtoken.models import Token as AuthToken
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 from silverstrike.lib import last_day_of_month
 from silverstrike.models import Account, RecurringTransaction, Split, Transaction
@@ -76,3 +80,10 @@ class ProfileView(LoginRequiredMixin, generic.TemplateView):
         context = super(ProfileView, self).get_context_data()
         context['token'], created = AuthToken.objects.get_or_create(user=self.request.user)
         return context
+
+class BalenceApiView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        trans = Transaction.objects.all()
+        result = Transaction.objects.values('date').annotate(Networth=Sum('amount')).order_by("date")
+        return Response(result, status=status.HTTP_200_OK)

@@ -305,7 +305,7 @@ Chart.pluginService.register(horizonalLinePlugin);
       }
   });
 };
-$.getJSON("{% url 'api_balance' '2022-11-01' '2022-11-31' %}", {}, function(res, status) {
+$.getJSON("{% url 'api_index_balance' '2022-11-01' '2022-11-31' %}", {}, function(res, status) {
   drawChart(res);
 });
 </script>

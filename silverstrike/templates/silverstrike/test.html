@@ -24,7 +24,7 @@
   </div>
 </div>
 
-    <div class="row padding-large-vertical">
+    <!-- <div class="row padding-large-vertical">
       <div class="col-md-3">
         <div class="small-box bg-yellow">
           <div class="inner">
@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     {% regroup list by cat_type as cat_lst %}
     {% for cat in cat_lst %}
@@ -82,96 +82,93 @@
   {% for c in cat.list %}
 <div class="modal fade" id="exampleModal{{forloop.counter0}}{{forloop.parentloop.counter0}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
-    <form role="form" method="post">
-      {% csrf_token %}
-      {{ form.management_form }}
-        <div class="modal-content">
-          <div class="modal-header d-flex justify-content-between">
-            <span class="modal-title p-2 w-5 h4" id="exampleModalLabel">{{c.cat_name}}</span>
-            <button type="button" class="close p-2" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col col-sm-6">
-              <!-- <div class="font-weight-bold"> -->
-                <h5>
-                  Spending limit of {{ month|date:'F Y'}}
-                </h5>
-              <!-- </div> -->
-              <div class="row parent">
-                <!-- <input type="text" name="budget" id="budget_amount" defaultValue="1000"> -->
-                <h4 class="col col-sm-2 no-margin child">
-                  <strong>{{c.budget_amount}}$</strong>
-                </h4>
-                <div class="col col-sm-3"><a class="change-button" href="{% url 'budget_create' c.budget_id %}"><img src="../static/silverstrike/img/edit.png" class="img-thumbnail" alt="Image"></a></div>
-              </div>
-            </div>
-            <div class="col col-sm-3">
-              <h5>Recommended daily spending</h5>
-              <h4>
-                <strong>{{c.recommend_spend}}$</strong>
+      <div class="modal-content">
+        <div class="modal-header d-flex justify-content-between">
+          <span class="modal-title p-2 w-5 h4" id="exampleModalLabel">{{c.cat_name}}</span>
+          <button type="button" class="close p-2" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      <div class="modal-body">
+        <h1 id="{{ c.cat_id }}"" hidden>{{c.cat_id}}</h1>
+        <div class="row">
+          <div class="col col-sm-6">
+            <!-- <div class="font-weight-bold"> -->
+              <h5>
+                Spending limit of {{ month|date:'F Y'}}
+              </h5>
+            <!-- </div> -->
+            <div class="row parent">
+              <!-- <input type="text" name="budget" id="budget_amount" defaultValue="1000"> -->
+              <h4 class="col col-sm-2 no-margin child">
+                <strong>{{c.budget_amount}}$</strong>
               </h4>
-            </div>
-            <div class="col col-sm-3">
-              <h5>Actual daily spending</h5>
-              <h4>
-                <strong>{{c.daily_spent}}$</strong>
-              </h4>
+              <div class="col col-sm-3"><a class="change-button" href="{% url 'budget_create' c.budget_id %}"><img src="../static/silverstrike/img/edit.png" class="img-thumbnail" alt="Image"></a></div>
             </div>
           </div>
+          <div class="col col-sm-3">
+            <h5>Recommended daily spending</h5>
+            <h4>
+              <strong>{{c.recommend_spend}}$</strong>
+            </h4>
+          </div>
+          <div class="col col-sm-3">
+            <h5>Actual daily spending</h5>
+            <h4>
+              <strong>{{c.daily_spent}}$</strong>
+            </h4>
+          </div>
+        </div>
 
-          <div class="row">
-            <div class="col col-sm-6">
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-sm-10 no-padding">
-                      <div class="container-fluid no-padding">
-                          Spent
-                      </div>
-                      <div class="container-fluid no-padding">
-                        <h4>
-                          <strong>{{c.spent}}$</strong>
-                        </h4>
-                      </div>
+        <div class="row">
+          <div class="col col-sm-6">
+              <div class="container-fluid">
+                <div class="row">
+                  <div class="col-sm-10 no-padding">
+                    <div class="container-fluid no-padding">
+                        Spent
                     </div>
-                    <div class="col-sm-2">
-                      <div class="container-fluid">Left</div>
-                      <div class="container-fluid">
-                        <h4>
-                          <strong>{{c.left}}$</strong>
-                        </h4>
-                      </div>
+                    <div class="container-fluid no-padding">
+                      <h4>
+                        <strong>{{c.spent}}$</strong>
+                      </h4>
                     </div>
                   </div>
-                  <div class="row">
-                    <div class="progress progress-custom">
-                      {% if c.percent >= 0 and c.percent <= 50 %}
-                      <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                      {% elif c.percent > 50 and c.percent < 100 %}
-                      <div class="progress-bar progress-bar-warning" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                      {% else %}
-                      <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                      {% endif %}
+                  <div class="col-sm-2">
+                    <div class="container-fluid">Left</div>
+                    <div class="container-fluid">
+                      <h4>
+                        <strong>{{c.left}}$</strong>
+                      </h4>
                     </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="progress progress-custom">
+                    {% if c.percent >= 0 and c.percent <= 50 %}
+                    <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    {% elif c.percent > 50 and c.percent < 100 %}
+                    <div class="progress-bar progress-bar-warning" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    {% else %}
+                    <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ c.percent }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    {% endif %}
                   </div>
                 </div>
               </div>
             </div>
-
-            <div>
-              <canvas id="myChart" width="450" height="250"></canvas>
-            </div>
-
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary" data-dismiss="modal">{% trans 'Save changes' %}</button>
+
+          <div>
+            <canvas id="chart{{ c.cat_id }}" width="450" height="250"></canvas>
           </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" data-dismiss="modal">{% trans 'Save changes' %}</button>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </div>
   {% endfor %}
@@ -225,113 +222,117 @@
 // }}
 
 var drawChart = function(res) {
-  var ctx = document.getElementById("myChart").getContext('2d');
+  for (let index = 0; index < res.length; index++) {
+    const element = res[index];
+    console.log(element);
+    if (element.category == null) {
+      continue
+    }
+    console.log("chart" + element.category);
+    var ctx = document.getElementById("chart" + element.category).getContext('2d');
 
+    var horizonalLinePlugin = {
+    afterDraw: function(chartInstance) {
+      var yScale = chartInstance.scales["y-axis-0"];
+      var canvas = chartInstance.chart;
+      var ctx = canvas.ctx;
+      var index;
+      var line;
+      var style;
+      if (chartInstance.options.horizontalLine) {
+        for (index = 0; index < chartInstance.options.horizontalLine.length; index++) {
+          line = chartInstance.options.horizontalLine[index];
+          if (!line.style) {
+            style = "rgba(169,169,169, .6)";
+          } else {
+            style = line.style;
+          }
+          if (line.y) {
+            yValue = yScale.getPixelForValue(line.y);
+          } else {
+            yValue = 0;
+          }
+          ctx.lineWidth = 3;
+          if (yValue) {
+            ctx.beginPath();
+            ctx.moveTo(0, yValue);
+            ctx.lineTo(canvas.width, yValue);
+            ctx.strokeStyle = style;
+            ctx.stroke();
+          }
+          if (line.text) {
+            ctx.fillStyle = style;
+            ctx.fillText(line.text, 0, yValue + ctx.lineWidth);
+          }
+        }
+        return;
+      };
+    }
+  };
+  Chart.pluginService.register(horizonalLinePlugin);
 
-  var horizonalLinePlugin = {
-  afterDraw: function(chartInstance) {
-    var yScale = chartInstance.scales["y-axis-0"];
-    var canvas = chartInstance.chart;
-    var ctx = canvas.ctx;
-    var index;
-    var line;
-    var style;
-    if (chartInstance.options.horizontalLine) {
-      for (index = 0; index < chartInstance.options.horizontalLine.length; index++) {
-        line = chartInstance.options.horizontalLine[index];
-        if (!line.style) {
-          style = "rgba(169,169,169, .6)";
-        } else {
-          style = line.style;
-        }
-        if (line.y) {
-          yValue = yScale.getPixelForValue(line.y);
-        } else {
-          yValue = 0;
-        }
-        ctx.lineWidth = 3;
-        if (yValue) {
-          ctx.beginPath();
-          ctx.moveTo(0, yValue);
-          ctx.lineTo(canvas.width, yValue);
-          ctx.strokeStyle = style;
-          ctx.stroke();
-        }
-        if (line.text) {
-          ctx.fillStyle = style;
-          ctx.fillText(line.text, 0, yValue + ctx.lineWidth);
-        }
-      }
-      return;
+    var data = {
+        labels: element.data.labels,
+        datasets: []
     };
+    var dataset = {
+      label: 'Balance',
+      fill: false,
+      tension: 0.1,
+      backgroundColor: '#357ca5',
+      borderColor: '#357ca5',
+      data: element.data.datafront
+    };
+    data.datasets.push(dataset);
+    var dataset = {
+      label: 'Linear Regressor Predictor',
+      fill: false,
+      tension: 0.1,
+      backgroundColor: '#228B22',
+      borderColor: '#228B22',
+      data: element.data.databack
+    };
+    data.datasets.push(dataset);
+    var dataset = {
+      label: 'Time Series Predictor',
+      fill: false,
+      tension: 0.1,
+      backgroundColor: '#FFD700',
+      borderColor: '#FFD700',
+      data: element.data.databack2
+    };
+    data.datasets.push(dataset);
+
+    balanceChart = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: {
+            tooltips: {
+                mode: 'index',
+                position: 'nearest',
+                intersect: false,
+                caretPadding: 5
+            },
+            legend: {
+              position: 'none'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            "horizontalLine": [{
+                "y": 3000,
+                "style": "rgba(255, 0, 0, .3)",
+            }]
+
+        }
+    });
   }
 };
-Chart.pluginService.register(horizonalLinePlugin);
-
-
-
-  var data = {
-      labels: res.labels,
-      datasets: []
-  };
-  var dataset = {
-    label: 'Balance',
-    fill: false,
-    tension: 0.1,
-    backgroundColor: '#357ca5',
-    borderColor: '#357ca5',
-    data: res.datafront
-  };
-  data.datasets.push(dataset);
-  var dataset = {
-    label: 'Linear Regressor Predictor',
-    fill: false,
-    tension: 0.1,
-    backgroundColor: '#228B22',
-    borderColor: '#228B22',
-    data: res.databack
-  };
-  data.datasets.push(dataset);
-  var dataset = {
-    label: 'Time Series Predictor',
-    fill: false,
-    tension: 0.1,
-    backgroundColor: '#FFD700',
-    borderColor: '#FFD700',
-    data: res.databack2
-  };
-  data.datasets.push(dataset);
-
-  balanceChart = new Chart(ctx, {
-      type: 'line',
-      data: data,
-      options: {
-          tooltips: {
-              mode: 'index',
-              position: 'nearest',
-              intersect: false,
-              caretPadding: 5
-          },
-          legend: {
-            position: 'none'
-          },
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  }
-              }]
-          },
-          "horizontalLine": [{
-              "y": 3000,
-              "style": "rgba(255, 0, 0, .3)",
-          }]
-
-      }
-  });
-};
 $.getJSON("{% url 'api_balance' '2022-11-01' '2022-11-31' %}", {}, function(res, status) {
-  console.log(res);
   drawChart(res);
 });
 </script>

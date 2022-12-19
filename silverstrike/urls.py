@@ -29,6 +29,7 @@ urlpatterns = [
     path('test/<int:pk>/update/',
          budget_views.BudgetUpdateView.as_view(), name='budget_create'),
     path('testapi/', budget_views.BudgetListApiView.as_view(), name='chart_api'),
+    path('balanceapi/', general_views.BalenceApiView.as_view(), name="chart_balance"),
     path('profile/', general_views.ProfileView.as_view(), name='profile'),
 
     path('auth/', include('allauth.urls')),
@@ -118,6 +119,7 @@ urlpatterns = [
 
     path('api/accounts/<account_type>/', api.get_accounts, name='api_accounts'),
     path('api/balance/<dstart>/<dend>/', api.get_balances, name='api_balance'),
+    path('api/aggbalence/<dstart>/<dend>/', api.get_balances_index, name='api_index_balance'),
     path('api/account/<int:account_id>/balance/<dstart>/<dend>/',
          api.get_account_balance, name='api_account_balance'),
     path('api/accounts_balance/<dstart>/<dend>/',

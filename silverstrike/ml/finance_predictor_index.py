@@ -20,27 +20,14 @@ from .tseries import TimeSeriesRegressor, time_series_split
 def convert_json_to_dataframe():
     s = requests.Session()
 
-    url = "http://localhost:8000/testapi"
+    url = "http://localhost:8000/balanceapi/"
     result = s.get(url, auth=('cuocchie@gmail.com','banmai111'))
 
-    temp = []
-    check_dup = []
-    for dct in result.json():
-        if dct['category'] in check_dup:
-            continue
-        else:
-            temp.append({'category': dct['category'], 'data': []})
-            check_dup.append(dct['category'])
-    for dct in temp:
-        for data in result.json():
-            if data['category'] == dct['category']:
-                dct['data'].append({'Sum': data['Sum'], 'date': data['date']}) 
-
-    res = []
-    for cat in temp:
-        df = json_normalize(cat['data'])
-        res.append({'category': cat['category'], 'df': df})
-    return res
+    print(result.json())
+    # dict = json.loads(result)
+    
+    df2 = json_normalize(result.json())
+    return df2
 
 def run_linear_regression(X, y, datelist):
     """
@@ -149,88 +136,89 @@ def run_time_series(X, y, datelist):
 
 
 def process_file():
-    result = []
+    try:
+        # dataframe = csv_to_formatted_dataframe(file)
+        dataframe = convert_json_to_dataframe()
+    except Exception as err:
+        print(str(err), "Skipping file.")
+        exit()
 
-    dataframe = convert_json_to_dataframe()
+    # print(dataframe)
+    # Grab graphing data
+    X = dataframe["date"].values
+    # print(X)
+    X = numpy.array(X, dtype='datetime64[ns]')
+    y = dataframe["Networth"]
+    # print(type(X[0]))
+    # print(type(y[0]))
 
-    for dct in dataframe:
-        df = dct['df']
-        # print(dataframe)
-        # Grab graphing data
-        X = df["date"].values
-        # print(X)
-        X = numpy.array(X, dtype='datetime64[ns]')
-        y = df["Sum"]
-        # print(type(X[0]))
-        # print(type(y[0]))
+    # Create a list of dates with a 30-day interval
+    datelist = numpy.arange(
+        str(X[-1]),
+        '2023-01-01T00:00:00.0000000',
+        numpy.timedelta64(int(24), 'h'),
+        dtype='datetime64'
+    )
+    datelist = numpy.delete(datelist, 0)
 
-        # Create a list of dates with a 30-day interval
-        datelist = numpy.arange(
-            str(X[-1]),
-            '2023-01-01T00:00:00.0000000',
-            numpy.timedelta64(int(24), 'h'),
-            dtype='datetime64'
-        )
-        datelist = numpy.delete(datelist, 0)
+    # Format inputs
+    X = X.reshape(len(X), 1)
+    datelist = datelist.reshape(len(datelist), 1)
+    X_and_datelist = [*X, *datelist]
+    # print(type(X[0][0]))
+    # print(X)
+    # # print(X_and_datelist)
+    # print(y)
 
-        # Format inputs
-        X = X.reshape(len(X), 1)
-        datelist = datelist.reshape(len(datelist), 1)
-        X_and_datelist = [*X, *datelist]
-        # print(type(X[0][0]))
-        # print(X)
-        # # print(X_and_datelist)
-        # print(y)
+    # Get predicted values
+    lr_y, lr_y_all = run_linear_regression(X, y, X_and_datelist)
+    ts_y, ts_y_all = run_time_series(X, y, datelist)
+    # gpr_y, gpr_y_all = run_gaussian_process_regression(X, y, X_and_datelist)
 
-        # Get predicted values
-        lr_y, lr_y_all = run_linear_regression(X, y, X_and_datelist)
-        ts_y, ts_y_all = run_time_series(X, y, datelist)
-        # gpr_y, gpr_y_all = run_gaussian_process_regression(X, y, X_and_datelist)
+    # print(X_and_datelist)
+    datetest = numpy.array(X_and_datelist, dtype='datetime64[D]')
+    datelabel = []
+    for x in datetest:
+        datelabel.append(str(x[0]))
+    # print(datelabel)
+    # print(len(X))
+    dele = len(X)
+    datafront = dataframe["Networth"].values.tolist()
+    # print(datafront)
+    # print(ts_y)
+    databack = lr_y_all.tolist()
+    databack2 = ts_y_all
+    for z in range(0, dele):
+        databack[z] = None
+        databack2[z] = None
+    databack[dele-1] = datafront[dele-1]
+    databack2[dele - 1] = datafront[dele - 1]
+    for k in range(dele, len(databack)):
+        if databack[k] < 0:
+            databack[k] = 0
+        if databack2[k] < 0:
+            databack2[k] = 0
+    datatest = {
+        'labels': datelabel,
+        'datafront': datafront,
+        'databack': databack,
+        'databack2': databack2
+    }
+    print(datatest)
+    # print(X_and_datelist)
+    # datatest = {
+    #     'labels': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+    #     'datafront': [1, 2, 3, 4, 5, 6, 7],
+    #     'databack': [None, None, None, None, None, None, 7, 8, 9, 10, 11, 12, 13, 14],
+    #     'databack2': [None, None, None, None, None, None, 7, 8, 9, 10, 11, 12, 13, 14]
+    # }
+    # datatest = {
+    #     'labels': ['2022-10-01', '2022-10-02', '2022-10-03', '2022-10-04', '2022-10-05', '2022-10-06', '2022-10-07', '2022-10-08', '2022-10-09', '2022-10-10', '2022-10-11', '2022-10-12', '2022-10-13', '2022-10-14', '2022-10-15', '2022-10-16', '2022-10-17', '2022-10-18', '2022-10-19', '2022-10-20', '2022-10-21', '2022-10-22', '2022-10-23', '2022-10-24', '2022-10-25', '2022-10-26', '2022-10-27', '2022-10-28', '2022-10-29', '2022-10-30', '2022-10-31'],
+    #     'datafront': [0, 243, 524],
+    #     'databack': [None, None, 524, 779.6666666669771, 1041.666666666977, 1303.666666666977, 1565.666666666977, 1827.666666666977, 2089.666666666977, 2351.666666666977, 2613.666666666977, 2875.666666666977, 3137.666666666977, 3399.666666666977, 3661.666666666977, 3923.666666666977, 4185.666666666977, 4447.666666666977, 4709.666666666977, 4971.666666666977, 5233.666666666977, 5495.666666666977, 5757.666666666977, 6019.666666666977, 6281.666666666977, 6543.666666666977, 6805.666666666977, 7067.666666666977, 7329.666666666977, 7591.666666666977, 7853.666666666977]
+    # }
 
-        # print(X_and_datelist)
-        datetest = numpy.array(X_and_datelist, dtype='datetime64[D]')
-        datelabel = []
-        for x in datetest:
-            datelabel.append(str(x[0]))
-        # print(datelabel)
-        # print(len(X))
-        dele = len(X)
-        datafront = df["Sum"].values.tolist()
-        # print(datafront)
-        # print(ts_y)
-        databack = lr_y_all.tolist()
-        databack2 = ts_y_all
-        for z in range(0, dele):
-            databack[z] = None
-            databack2[z] = None
-        databack[dele-1] = datafront[dele-1]
-        databack2[dele - 1] = datafront[dele - 1]
-        for k in range(dele, len(databack)):
-            if databack[k] < 0:
-                databack[k] = 0
-            if databack2[k] < 0:
-                databack2[k] = 0
-        datatest = {
-            'labels': datelabel,
-            'datafront': datafront,
-            'databack': databack,
-            'databack2': databack2
-        }
-        result.append({'category': dct['category'], 'data': datatest})
-        # print(X_and_datelist)
-        # datatest = {
-        #     'labels': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-        #     'datafront': [1, 2, 3, 4, 5, 6, 7],
-        #     'databack': [None, None, None, None, None, None, 7, 8, 9, 10, 11, 12, 13, 14],
-        #     'databack2': [None, None, None, None, None, None, 7, 8, 9, 10, 11, 12, 13, 14]
-        # }
-        # datatest = {
-        #     'labels': ['2022-10-01', '2022-10-02', '2022-10-03', '2022-10-04', '2022-10-05', '2022-10-06', '2022-10-07', '2022-10-08', '2022-10-09', '2022-10-10', '2022-10-11', '2022-10-12', '2022-10-13', '2022-10-14', '2022-10-15', '2022-10-16', '2022-10-17', '2022-10-18', '2022-10-19', '2022-10-20', '2022-10-21', '2022-10-22', '2022-10-23', '2022-10-24', '2022-10-25', '2022-10-26', '2022-10-27', '2022-10-28', '2022-10-29', '2022-10-30', '2022-10-31'],
-        #     'datafront': [0, 243, 524],
-        #     'databack': [None, None, 524, 779.6666666669771, 1041.666666666977, 1303.666666666977, 1565.666666666977, 1827.666666666977, 2089.666666666977, 2351.666666666977, 2613.666666666977, 2875.666666666977, 3137.666666666977, 3399.666666666977, 3661.666666666977, 3923.666666666977, 4185.666666666977, 4447.666666666977, 4709.666666666977, 4971.666666666977, 5233.666666666977, 5495.666666666977, 5757.666666666977, 6019.666666666977, 6281.666666666977, 6543.666666666977, 6805.666666666977, 7067.666666666977, 7329.666666666977, 7591.666666666977, 7853.666666666977]
-        # }
-
-    return result
+    return datatest
     # plot_predictions(X, y, pred_dates=X_and_datelist, lines=[lr_y_all, ts_y_all, gpr_y_all])
 
 
